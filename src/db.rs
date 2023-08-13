@@ -3,7 +3,7 @@ use color_eyre::Report;
 use rusqlite::{params, Connection};
 use tracing::info;
 
-fn create_share_table(db: &Database) -> Result<(), Report> {
+pub fn create_share_table(db: &Database) -> Result<(), Report> {
     info!("Creating sharejournal table if needed");
     let conn = db.connection();
     conn.execute(
@@ -29,7 +29,7 @@ pub fn buy_share(share: &Share, db: &Database) -> Result<(), Report> {
     println!("{:?}", share);
     conn.execute(
         "INSERT INTO sharejournal (share_code, share_name, buy_price, buy_date)
-    VALUES (?1, ?2, ?3, ?4",
+    VALUES (?1, ?2, ?3, ?4)",
         params![&share.code, &share.name, &share.buy_price, &share.buy_date],
     )?;
     Ok(())

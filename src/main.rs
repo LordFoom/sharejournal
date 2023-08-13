@@ -1,6 +1,6 @@
 use crate::db::buy_share;
 use crate::model::{Database, Share};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, NaiveDate, NaiveTime, Utc};
 use clap::Parser;
 use color_eyre::Report;
 use Default;
@@ -25,32 +25,36 @@ struct Args {
 fn main() -> Result<(), Report> {
     let args = Args::parse();
     //default is to buy
-    if !args.sell {
-    } else {
-    }
+    let db = Database {
+        name: String::from("sharejournal.db"),
+    };
     if !args.sell {
         //default is buy
-        let result = purchase(&args)?;
+        let result = purchase(&args, &db)?;
     } else {
         //todo sell
     }
     Ok(())
 }
 
-fn purchase(args: &Args) -> Result<String, Report> {
+fn purchase(args: &Args, db: &Database) -> Result<String, Report> {
     let name = if let Some(name) = args.name.clone() {
         name
     } else {
         "".to_string()
     };
+    let buy_date = if let Some(dt) = args.date {
+        dt
+    }else{
+        let dt = Utc::now().naive_utc();
+        dt
+    };
     let share = Share {
         name,
         code: args.code.clone(),
         buy_price: args.price.clone(),
+        buy_date,
         ..Default::default()
-    };
-    let db = Database {
-        name: String::from("sharejournal.db"),
     };
 
     buy_share(&share, &db)?;
@@ -62,6 +66,7 @@ fn parse_date(src: &str) -> Result<NaiveDateTime, Report> {
     Ok(NaiveDateTime::parse_from_str(src, "%Y-%m-%d %H:%M:%S")?)
 }
 mod test {
+    use crate::db::create_share_table;
     use super::*;
 
     #[test]
@@ -71,9 +76,13 @@ mod test {
             price: 8.96,
             code: "TEST".to_string(),
             sell: false,
-            date: Some,
+            date: None,
         };
-        let result = purchase(&args).unwrap();
+        let db = Database{
+            name: "TestDb.db".to_string()
+        };
+        create_share_table(&db).unwrap();
+        let result = purchase(&args, &db).unwrap();
         assert_eq!("Bought 'TEST' at '8.96'", result);
     }
 }
