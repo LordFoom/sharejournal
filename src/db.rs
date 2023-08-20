@@ -37,8 +37,23 @@ pub fn buy_share(share: &Share, db: &Database) -> Result<(), Report> {
 
 fn load_share(code: &str, db: &Database) -> Result<Option<Share>, Report> {
     let conn = db.connection();
-    let sql = "SELECT * from sharejournal where share_code = ?1";
+    let sql = "SELECT * from sharejournal where share_code = :share_code";
+    let mut stmt = conn.prepare(sql)?;
+    let mut share_rows = stmt.query(&[(":share_code", code)])?;
+    let mut share=None;
+    while Some(row) = share_rows.next()? {
+        if share = None {
+
+        } else {
+            return Err(Report::msg("Too many shares returned"))
+        }
+    }
     Ok(None)
+}
+
+fn list_shares(db: &Database) -> Result<Vec<Share>, Report> {
+    let mut shares = Vec::new();
+    Ok(shares)
 }
 
 impl Database {
