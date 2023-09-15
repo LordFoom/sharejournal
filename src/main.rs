@@ -12,7 +12,7 @@ mod model;
 #[derive(Parser, Debug)]
 struct Args {
     code: String,
-    price: f64,
+    price: i32,
     #[arg(short, long)]
     name: Option<String>,
     ///buy or sell
@@ -52,13 +52,13 @@ fn purchase(args: &Args, db: &Database) -> Result<String, Report> {
     let share = Share {
         name,
         code: args.code.clone(),
-        buy_price: args.price.clone(),
-        buy_date,
+        buy_price: Some(args.price.clone()),
+        buy_date: Some(buy_date),
         ..Default::default()
     };
 
     buy_share(&share, &db)?;
-    let result = format!("Bought '{}' at '{}'", share.code, share.buy_price);
+    let result = format!("Bought '{}' at '{}'", share.code, share.buy_price.unwrap());
     return Ok(result);
 }
 
@@ -73,7 +73,7 @@ mod test {
     fn test_purchase() {
         let args = Args {
             name: None,
-            price: 8.96,
+            price: 896,
             code: "TEST".to_string(),
             sell: false,
             date: None,

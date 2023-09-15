@@ -1,4 +1,4 @@
-use chrono::{NaiveDateTime, Utc};
+use chrono::{Utc};
 use crate::model::{Database, Share};
 use color_eyre::Report;
 use rusqlite::{params, Connection};
@@ -46,8 +46,8 @@ fn load_share(code: &str, db: &Database) -> Result<Vec<Share>, Report> {
     let mut stmt = conn.prepare(sql)?;
     let mut share_rows = stmt.query_map(&[(":share_code", code)], |row|
             Ok(Share{
-                name: row.get("name")?,
-                code: row.get("code")?,
+                name: row.get("share_name")?,
+                code: row.get("share_code")?,
                 buy_price: row.get("buy_price")?,
                 buy_date: row.get("buy_date")?,
                 sell_price: row.get("sell_price")?,
@@ -93,6 +93,9 @@ mod tests {
     ///Truncate the sharetable
     fn cleanup() {
         let sql = "DELETE FROM sharejournal";
+        let db = test_db();
+        let conn= db.connection();
+        conn.execute(sql, []).unwrap();
     }
 
     #[test]
@@ -113,7 +116,7 @@ mod tests {
         let share = Share::share_to_buy(
             "Test Share Company".to_string(),
             "TST".to_string(),
-            12.34,
+            1234,
             date,
         );
         let db = test_db();
@@ -123,6 +126,6 @@ mod tests {
     #[test]
     pub fn test_load_share(){
         let db = test_db();
-       load_share("TST", &db).unwrap();
+        let share_results = load_share("TST", &db).unwrap();
     }
 }

@@ -5,10 +5,10 @@ use chrono::NaiveDateTime;
 pub struct Share {
     pub name: String,
     pub code: String,
-    pub buy_price: f64,
-    pub buy_date: NaiveDateTime,
-    pub sell_price: f64,
-    pub sell_date: NaiveDateTime,
+    pub buy_price: Option<i32>,
+    pub buy_date: Option<NaiveDateTime>,
+    pub sell_price: Option<i32>,
+    pub sell_date: Option<NaiveDateTime>,
     pub create_date: NaiveDateTime,
 }
 
@@ -16,14 +16,14 @@ impl Share {
     pub fn share_to_buy(
         share_name: String,
         share_code: String,
-        buy_price: f64,
+        buy_price: i32,
         buy_date: NaiveDateTime,
     ) -> Share {
         Share {
             name: share_name,
             code: share_code,
-            buy_price,
-            buy_date,
+            buy_price: Some(buy_price),
+            buy_date: Some(buy_date),
             ..Default::default()
         }
     }
