@@ -39,6 +39,18 @@ pub fn buy_share(share: &Share, db: &Database) -> Result<(), Report> {
     Ok(())
 }
 
+pub fn sell_share(share: &Share, db: &Database) -> Result<String, Report> {
+    info!("Selling share: {:?}", share);
+    let conn = db.connection();
+    println!("{:?}", share);
+    let now = Utc::now().naive_utc();
+    let _i = conn.execute(
+        "INSERT INTO sharejournal (share_code, share_name, sell_price, sell_date, create_date)
+    VALUES (?1, ?2, ?3, ?4, ?5)",
+        params![&share.code, &share.name, &share.sell_price, &share.sell_date, now],
+    )?;
+    Ok(format!("Inserted share sale into db for {}", share.code))
+}
 ///Load all the Share records for a given code
 fn load_share(code: &str, db: &Database) -> Result<Vec<Share>, Report> {
     let conn = db.connection();
@@ -127,5 +139,25 @@ mod tests {
     pub fn test_load_share(){
         let db = test_db();
         let share_results = load_share("TST", &db).unwrap();
+    }
+
+    #[test]
+    pub fn test_sell_share() {
+        let db = test_db();
+        let date = NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(1962, 7, 16).unwrap(),
+            NaiveTime::from_hms_opt(10, 4, 8).unwrap(),
+        );
+
+        let share = Share::share_to_sell(
+            "Test Share Company".to_string(),
+            "TST".to_string(),
+            1234,
+            date,
+        );
+
+        let result = sell_share(&share, &db).unwrap();
+
+        assert_eq!("Inserted share sale into db for TST", result);
     }
 }

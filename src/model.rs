@@ -18,12 +18,26 @@ impl Share {
         share_code: String,
         buy_price: i32,
         buy_date: NaiveDateTime,
-    ) -> Share {
-        Share {
+    ) -> Self {
+        Self {
             name: share_name,
             code: share_code,
             buy_price: Some(buy_price),
             buy_date: Some(buy_date),
+            ..Default::default()
+        }
+    }
+    pub fn share_to_sell(
+        share_name: String,
+        share_code: String,
+        sell_price: i32,
+        sell_date: NaiveDateTime,
+    ) -> Self {
+        Self {
+            name: share_name,
+            code: share_code,
+            sell_price: Some(sell_price),
+            sell_date: Some(sell_date),
             ..Default::default()
         }
     }

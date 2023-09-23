@@ -1,4 +1,4 @@
-use crate::db::buy_share;
+use crate::db::{buy_share, sell_share};
 use crate::model::{Database, Share};
 use chrono::{NaiveDateTime, Utc};
 use clap::Parser;
@@ -33,6 +33,7 @@ fn main() -> Result<(), Report> {
         let result = purchase(&args, &db)?;
     } else {
         //todo sell
+        let result = sell(&args, &db)?;
     }
     Ok(())
 }
@@ -62,6 +63,32 @@ fn purchase(args: &Args, db: &Database) -> Result<String, Report> {
     return Ok(result);
 }
 
+fn sell(args: &Args, db: &Database) -> Result<String, Report> {
+    let name = if let Some(name) = args.name.clone() {
+        name
+    } else {
+        "".to_string()
+    };
+    let sell_date = if let Some(dt) = args.date {
+        dt
+    }else{
+        let dt = Utc::now().naive_utc();
+        dt
+    };
+    let share = Share {
+        name,
+        code: args.code.clone(),
+        sell_price: Some(args.price.clone()),
+        sell_date: Some(sell_date),
+        ..Default::default()
+    };
+
+    sell_share(&share, &db)?;
+    let result = format!("Sold '{}' at '{}'", share.code, share.sell_price.unwrap());
+    return Ok(result);
+}
+
+
 fn parse_date(src: &str) -> Result<NaiveDateTime, Report> {
     Ok(NaiveDateTime::parse_from_str(src, "%Y-%m-%d %H:%M:%S")?)
 }
@@ -83,6 +110,6 @@ mod test {
         };
         create_share_table(&db).unwrap();
         let result = purchase(&args, &db).unwrap();
-        assert_eq!("Bought 'TEST' at '8.96'", result);
+        assert_eq!("Bought 'TEST' at '896'", result);
     }
 }
