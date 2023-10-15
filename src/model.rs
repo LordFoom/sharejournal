@@ -1,4 +1,6 @@
+use std::fmt::{Display, Formatter};
 use chrono::NaiveDateTime;
+use crate::format::{get_date_string, get_price_string};
 
 ///A share, when we bought it, when we sold it, the price at either end
 #[derive(Debug, Default)]
@@ -41,6 +43,19 @@ impl Share {
             ..Default::default()
         }
     }
+
+}
+
+impl Display for Share {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        // write!(f, "{}", self.code)
+        let str_buy_date = get_date_string(self.buy_date);
+        let str_sell_date = get_date_string(self.sell_date);
+        let str_buy_price = get_price_string(self.buy_price);
+        let str_sell_price = get_price_string(self.sell_price);
+        write!(f, "{}:{}/{} - {}/{}", self.code, str_buy_date,str_sell_date, str_buy_price, str_sell_price)
+    }
+
 }
 
 ///A wrapper for our database so we can pass it around and get a connection`

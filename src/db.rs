@@ -52,7 +52,7 @@ pub fn sell_share(share: &Share, db: &Database) -> Result<String, Report> {
     Ok(format!("Inserted share sale into db for {}", share.code))
 }
 ///Load all the Share records for a given code
-fn load_share(code: &str, db: &Database) -> Result<Vec<Share>, Report> {
+pub fn load_share(code: &str, db: &Database) -> Result<Vec<Share>, Report> {
     let conn = db.connection();
     let sql = "SELECT share_name, share_code, buy_price, buy_date, sell_price, sell_date, create_date from sharejournal where share_code = :share_code";
     let mut stmt = conn.prepare(sql)?;
@@ -76,6 +76,8 @@ fn load_share(code: &str, db: &Database) -> Result<Vec<Share>, Report> {
 
 fn list_shares(db: &Database) -> Result<Vec<Share>, Report> {
     let mut shares = Vec::new();
+
+
     Ok(shares)
 }
 

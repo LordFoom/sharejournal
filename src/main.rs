@@ -7,6 +7,8 @@ use Default;
 
 mod db;
 mod model;
+mod output;
+mod format;
 
 ///Arguments to the our app
 #[derive(Parser, Debug)]
@@ -32,7 +34,6 @@ fn main() -> Result<(), Report> {
         //default is buy
         let result = purchase(&args, &db)?;
     } else {
-        //todo sell
         let result = sell(&args, &db)?;
     }
     Ok(())
@@ -89,9 +90,13 @@ fn sell(args: &Args, db: &Database) -> Result<String, Report> {
 }
 
 
+///Turn strings into NaiveDateTime
 fn parse_date(src: &str) -> Result<NaiveDateTime, Report> {
     Ok(NaiveDateTime::parse_from_str(src, "%Y-%m-%d %H:%M:%S")?)
 }
+
+
+
 mod test {
     use crate::db::create_share_table;
     use super::*;
