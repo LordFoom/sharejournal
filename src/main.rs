@@ -1,4 +1,4 @@
-use crate::db::{buy_share, sell_share};
+use crate::db::{buy_share, get_initted_db, sell_share};
 use crate::model::{Database, Share};
 use chrono::{NaiveDateTime, Utc};
 use clap::Parser;
@@ -27,9 +27,9 @@ struct Args {
 fn main() -> Result<(), Report> {
     let args = Args::parse();
     //default is to buy
-    let db = Database {
-        name: String::from("sharejournal.db"),
-    };
+    //TODO get this from config, or from arg
+    let db = get_initted_db("sharejournal.db")?;
+
     if !args.sell {
         //default is buy
         let result = purchase(&args, &db)?;

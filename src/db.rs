@@ -4,6 +4,13 @@ use color_eyre::Report;
 use rusqlite::{params, Connection};
 use tracing::info;
 
+pub fn get_initted_db(db_name:&str) ->Result<Database, Report> {
+    let db = Database {
+        name: String::from(db_name),
+    };
+    create_share_table(&db)?;
+    Ok(db)
+}
 pub fn create_share_table(db: &Database) -> Result<(), Report> {
     info!("Creating sharejournal table if needed");
     let conn = db.connection();

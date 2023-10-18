@@ -40,9 +40,10 @@ mod test{
         let date = NaiveDateTime::parse_from_str("2023-10-15 19:47:22", "%Y-%m-%d %H:%M:%S").unwrap();
         let some_date = Some(date);
         let str_date = get_date_string(some_date);
-
         assert_eq!("2023-10-15 19:47:22", str_date);
+
         let str_date = get_date_string(None);
+        println!("str_date: {}", str_date);
         assert_eq!("", str_date);
     }
 }
