@@ -4,6 +4,7 @@ use chrono::{NaiveDateTime, Utc};
 use clap::Parser;
 use color_eyre::Report;
 use Default;
+use crate::output::print_share;
 
 mod db;
 mod model;
@@ -14,7 +15,7 @@ mod format;
 #[derive(Parser, Debug)]
 struct Args {
     code: String,
-    price: i32,
+    price: Option<i32>,
     #[arg(short, long)]
     name: Option<String>,
     ///buy or sell
@@ -22,6 +23,8 @@ struct Args {
     sell: bool,
     #[arg(short,long, value_parser=parse_date)]
     date: Option<NaiveDateTime>,
+    #[arg(short, long)]
+    list: bool,
 }
 
 fn main() -> Result<(), Report> {
@@ -30,11 +33,13 @@ fn main() -> Result<(), Report> {
     //TODO get this from config, or from arg
     let db = get_initted_db("sharejournal.db")?;
 
-    if !args.sell {
-        //default is buy
-        let result = purchase(&args, &db)?;
-    } else {
+    if args.sell {
         let result = sell(&args, &db)?;
+    } else if args.list {
+        print_share(&args.code, &db)?;
+    } else {
+        //default is to buy
+        let result = purchase(&args, &db)?;
     }
     Ok(())
 }
@@ -51,10 +56,11 @@ fn purchase(args: &Args, db: &Database) -> Result<String, Report> {
         let dt = Utc::now().naive_utc();
         dt
     };
+    let passed_price = get_user_supplied_price(args)?;
     let share = Share {
         name,
         code: args.code.clone(),
-        buy_price: Some(args.price.clone()),
+        buy_price: Some(passed_price),
         buy_date: Some(buy_date),
         ..Default::default()
     };
@@ -62,6 +68,14 @@ fn purchase(args: &Args, db: &Database) -> Result<String, Report> {
     buy_share(&share, &db)?;
     let result = format!("Bought '{}' at '{}'", share.code, share.buy_price.unwrap());
     return Ok(result);
+}
+
+fn get_user_supplied_price(args: &Args) -> Result<i32, Report> {
+    let price = match args.price {
+        Some(price) => price,
+        None => return Err(Report::msg("Please provide price argument when buying or selling")),
+    };
+    Ok(price)
 }
 
 fn sell(args: &Args, db: &Database) -> Result<String, Report> {
@@ -76,10 +90,11 @@ fn sell(args: &Args, db: &Database) -> Result<String, Report> {
         let dt = Utc::now().naive_utc();
         dt
     };
+    let price = get_user_supplied_price(args)?;
     let share = Share {
         name,
         code: args.code.clone(),
-        sell_price: Some(args.price.clone()),
+        sell_price: Some(price),
         sell_date: Some(sell_date),
         ..Default::default()
     };
@@ -105,10 +120,11 @@ mod test {
     fn test_purchase() {
         let args = Args {
             name: None,
-            price: 896,
+            price: Some(896),
             code: "TEST".to_string(),
             sell: false,
             date: None,
+            list: false,
         };
         let db = Database{
             name: "TestDb.db".to_string()
