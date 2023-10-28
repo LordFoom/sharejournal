@@ -3,7 +3,7 @@ use chrono::NaiveDateTime;
 ///Turn our maybe_date into a
 pub fn get_date_string(maybe_date: Option<NaiveDateTime>) ->String {
     if let Some(dt) = maybe_date {
-        format!("{}",dt)
+        dt.format("%Y-%m-%d %H:%M:%S").to_string()
     } else{
         String::new()
     }

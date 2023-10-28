@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 use chrono::NaiveDateTime;
+use color_eyre::owo_colors::OwoColorize;
 use crate::format::{get_date_string, get_price_string};
 
 ///A share, when we bought it, when we sold it, the price at either end
@@ -49,11 +50,23 @@ impl Share {
 impl Display for Share {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         // write!(f, "{}", self.code)
-        let str_buy_date = get_date_string(self.buy_date);
-        let str_sell_date = get_date_string(self.sell_date);
-        let str_buy_price = get_price_string(self.buy_price);
-        let str_sell_price = get_price_string(self.sell_price);
-        write!(f, "{}:{}/{} - {}/{}", self.code, str_buy_date,str_sell_date, str_buy_price, str_sell_price)
+        let mut str_date = String::new();
+        let mut str_price = String::new();
+        let mut action = String::new();
+        if let Some(dt) = self.buy_date {
+            str_date = get_date_string(self.buy_date);
+            str_price = get_price_string(self.buy_price);
+            action = "BUY".to_string()
+        }else if let Some(dt) = self.sell_date{
+            str_date = get_date_string(self.sell_date);
+            str_price = get_price_string(self.sell_price);
+            action = "SELL".to_string()
+        }else{
+            str_date = "UNKNOWN".to_string();
+            str_price = "UNKNOWN".to_string();
+            action = "UNKNOWN".to_string()
+        }
+        write!(f, "Share: {} :: {} => Price: {}; Date: {} ", self.code.bold().blue(), action.bold().magenta(), str_price.red(), str_date.yellow(), )
     }
 
 }
